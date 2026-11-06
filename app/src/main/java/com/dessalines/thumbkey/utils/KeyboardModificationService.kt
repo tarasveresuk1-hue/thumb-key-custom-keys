@@ -3,6 +3,7 @@
 package com.dessalines.thumbkey.utils
 
 import android.util.Log
+import android.view.KeyEvent
 import androidx.annotation.Keep
 import androidx.compose.runtime.MutableState
 import arrow.optics.*
@@ -50,6 +51,7 @@ import com.dessalines.thumbkey.keyboards.UNDO_KEYC
 import com.dessalines.thumbkey.textprocessors.ComposeComboProcessor
 import com.dessalines.thumbkey.utils.KeyAction.CommitText
 import com.dessalines.thumbkey.utils.KeyAction.Noop
+import com.dessalines.thumbkey.utils.KeyAction.SendEvent
 import com.dessalines.thumbkey.utils.KeyAction.StartComposeCombo
 import com.dessalines.thumbkey.utils.KeyDisplay.TextDisplay
 import kotlinx.serialization.Serializable
@@ -267,6 +269,12 @@ fun modifyKeyC(
             KeyC.capsModeDisplay.set(it.capsModeDisplay)
         }
 
+        keyEventFromSerializable(keyCSerializable)?.let {
+            KeyC.action.set(SendEvent(it))
+            KeyC.display.set(TextDisplay(keyCSerializable.displayText ?: keyCSerializable.keyCode.orEmpty()))
+            KeyC.capsModeDisplay.set(null)
+        }
+
         keyCSerializable.swipeReturnText?.let {
             KeyC.swipeReturnAction.set(CommitText(it))
         }
@@ -306,6 +314,10 @@ fun modifyLongPress(
 
     keyCSerializable.text?.let {
         return CommitText(it)
+    }
+
+    keyEventFromSerializable(keyCSerializable)?.let {
+        return SendEvent(it)
     }
 
     keyActionKeyC?.let {
@@ -544,6 +556,11 @@ data class KeyCSerializable(
     val keyAction: KeyActionSerializable? = null,
     val swipeReturnText: String? = null,
     val swipeReturnAction: KeyActionSerializable? = null,
+    val keyCode: String? = null,
+    val ctrl: Boolean = false,
+    val shift: Boolean = false,
+    val alt: Boolean = false,
+    val meta: Boolean = false,
 )
 
 @Keep
@@ -586,4 +603,16 @@ enum class KeyActionSerializable {
     DeleteWordAfterCursor,
     StartComposeCombo,
     Noop,
+}
+
+fun keyEventFromSerializable(k: KeyCSerializable): KeyEvent? {
+    val name = k.keyCode ?: return null
+    val code = KeyEvent.keyCodeFromString(if (name.startsWith("KEYCODE_")) name else "KEYCODE_$name")
+    require(code != KeyEvent.KEYCODE_UNKNOWN) { "Unknown keyCode '$name'" }
+    var meta = 0
+    if (k.ctrl) meta = meta or KeyEvent.META_CTRL_ON or KeyEvent.META_CTRL_LEFT_ON
+    if (k.shift) meta = meta or KeyEvent.META_SHIFT_ON or KeyEvent.META_SHIFT_LEFT_ON
+    if (k.alt) meta = meta or KeyEvent.META_ALT_ON or KeyEvent.META_ALT_LEFT_ON
+    if (k.meta) meta = meta or KeyEvent.META_META_ON or KeyEvent.META_META_LEFT_ON
+    return KeyEvent(0, 0, KeyEvent.ACTION_DOWN, code, 0, meta)
 }

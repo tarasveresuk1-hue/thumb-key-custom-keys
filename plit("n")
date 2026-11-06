@@ -1,0 +1,67 @@
+[1mdiff --git a/app/src/main/java/com/dessalines/thumbkey/utils/KeyboardModificationService.kt b/app/src/main/java/com/dessalines/thumbkey/utils/KeyboardModificationService.kt[m
+[1mindex cb848368..abc10939 100644[m
+[1m--- a/app/src/main/java/com/dessalines/thumbkey/utils/KeyboardModificationService.kt[m
+[1m+++ b/app/src/main/java/com/dessalines/thumbkey/utils/KeyboardModificationService.kt[m
+[36m@@ -48,8 +48,10 @@[m [mimport com.dessalines.thumbkey.keyboards.TOGGLE_SHIFT_TRUE_KEYC[m
+ import com.dessalines.thumbkey.keyboards.TOGGLE_SKETCH_MODE_TRUE_KEYC[m
+ import com.dessalines.thumbkey.keyboards.UNDO_KEYC[m
+ import com.dessalines.thumbkey.textprocessors.ComposeComboProcessor[m
+[32m+[m[32mimport android.view.KeyEvent[m
+ import com.dessalines.thumbkey.utils.KeyAction.CommitText[m
+ import com.dessalines.thumbkey.utils.KeyAction.Noop[m
+[32m+[m[32mimport com.dessalines.thumbkey.utils.KeyAction.SendEvent[m
+ import com.dessalines.thumbkey.utils.KeyAction.StartComposeCombo[m
+ import com.dessalines.thumbkey.utils.KeyDisplay.TextDisplay[m
+ import kotlinx.serialization.Serializable[m
+[36m@@ -267,6 +269,12 @@[m [mfun modifyKeyC([m
+             KeyC.capsModeDisplay.set(it.capsModeDisplay)[m
+         }[m
+ [m
+[32m+[m[32m        keyEventFromSerializable(keyCSerializable)?.let {[m
+[32m+[m[32m            KeyC.action.set(SendEvent(it))[m
+[32m+[m[32m            KeyC.display.set(TextDisplay(keyCSerializable.displayText ?: keyCSerializable.keyCode.orEmpty()))[m
+[32m+[m[32m            KeyC.capsModeDisplay.set(null)[m
+[32m+[m[32m        }[m
+[32m+[m
+         keyCSerializable.swipeReturnText?.let {[m
+             KeyC.swipeReturnAction.set(CommitText(it))[m
+         }[m
+[36m@@ -308,6 +316,10 @@[m [mfun modifyLongPress([m
+         return CommitText(it)[m
+     }[m
+ [m
+[32m+[m[32m    keyEventFromSerializable(keyCSerializable)?.let {[m
+[32m+[m[32m        return SendEvent(it)[m
+[32m+[m[32m    }[m
+[32m+[m
+     keyActionKeyC?.let {[m
+         return it.action[m
+     }[m
+[36m@@ -544,6 +556,11 @@[m [mdata class KeyCSerializable([m
+     val keyAction: KeyActionSerializable? = null,[m
+     val swipeReturnText: String? = null,[m
+     val swipeReturnAction: KeyActionSerializable? = null,[m
+[32m+[m[32m    val keyCode: String? = null,[m
+[32m+[m[32m    val ctrl: Boolean = false,[m
+[32m+[m[32m    val shift: Boolean = false,[m
+[32m+[m[32m    val alt: Boolean = false,[m
+[32m+[m[32m    val meta: Boolean = false,[m
+ )[m
+ [m
+ @Keep[m
+[36m@@ -587,3 +604,15 @@[m [menum class KeyActionSerializable {[m
+     StartComposeCombo,[m
+     Noop,[m
+ }[m
+[32m+[m
+[32m+[m[32mfun keyEventFromSerializable(k: KeyCSerializable): KeyEvent? {[m
+[32m+[m[32m    val name = k.keyCode ?: return null[m
+[32m+[m[32m    val code = KeyEvent.keyCodeFromString(if (name.startsWith("KEYCODE_")) name else "KEYCODE_$name")[m
+[32m+[m[32m    require(code != KeyEvent.KEYCODE_UNKNOWN) { "Unknown keyCode '$name'" }[m
+[32m+[m[32m    var meta = 0[m
+[32m+[m[32m    if (k.ctrl) meta = meta or KeyEvent.META_CTRL_ON or KeyEvent.META_CTRL_LEFT_ON[m
+[32m+[m[32m    if (k.shift) meta = meta or KeyEvent.META_SHIFT_ON or KeyEvent.META_SHIFT_LEFT_ON[m
+[32m+[m[32m    if (k.alt) meta = meta or KeyEvent.META_ALT_ON or KeyEvent.META_ALT_LEFT_ON[m
+[32m+[m[32m    if (k.meta) meta = meta or KeyEvent.META_META_ON or KeyEvent.META_META_LEFT_ON[m
+[32m+[m[32m    return KeyEvent(0, 0, KeyEvent.ACTION_DOWN, code, 0, meta)[m
+[32m+[m[32m}[m
