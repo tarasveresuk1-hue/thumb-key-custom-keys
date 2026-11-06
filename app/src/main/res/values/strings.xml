@@ -168,4 +168,5 @@
     <string name="sketch_no_matches">No candidates match</string>
     <string name="handwriting_recognition">Handwriting recognition</string>
     <string name="handwriting_recognition_summary">Sketch mode recognizes characters with glyphsketch, on the device.</string>
+    <string name="key_editor" translatable="false">Редактор клавіш</string>
 </resources>

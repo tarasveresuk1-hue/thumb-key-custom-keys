@@ -30,6 +30,7 @@ import com.dessalines.thumbkey.ui.components.settings.backupandrestore.BackupAnd
 import com.dessalines.thumbkey.ui.components.settings.behavior.BehaviorScreen
 import com.dessalines.thumbkey.ui.components.settings.clipboard.ClipboardSettingsScreen
 import com.dessalines.thumbkey.ui.components.settings.lookandfeel.LookAndFeelScreen
+import com.dessalines.thumbkey.ui.components.settings.keyeditor.KeyEditorScreen
 import com.dessalines.thumbkey.ui.components.settings.modifykeys.ModifyKeysScreen
 import com.dessalines.thumbkey.ui.components.settings.other.OtherSettingsScreen
 import com.dessalines.thumbkey.ui.components.setup.SetupScreen
@@ -161,6 +162,12 @@ class MainActivity : AppCompatActivity() {
                     }
                     composable(route = "modifyKeys") {
                         ModifyKeysScreen(
+                            navController = navController,
+                            appSettingsViewModel = appSettingsViewModel,
+                        )
+                    }
+                    composable(route = "keyEditor") {
+                        KeyEditorScreen(
                             navController = navController,
                             appSettingsViewModel = appSettingsViewModel,
                         )

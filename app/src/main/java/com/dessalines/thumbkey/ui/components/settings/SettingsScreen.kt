@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.automirrored.outlined.HelpCenter
 import androidx.compose.material.icons.outlined.AppRegistration
 import androidx.compose.material.icons.outlined.Build
@@ -181,6 +182,16 @@ fun SettingsScreen(
                             )
                         },
                         onClick = { navController.navigate("modifyKeys") },
+                    )
+                    Preference(
+                        title = { Text(stringResource(R.string.key_editor)) },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Edit,
+                                contentDescription = null,
+                            )
+                        },
+                        onClick = { navController.navigate("keyEditor") },
                     )
                     Preference(
                         title = { Text(stringResource(R.string.backup_and_restore)) },
