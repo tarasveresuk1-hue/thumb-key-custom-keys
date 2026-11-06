@@ -18,7 +18,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.dessalines.thumbkey"
+        applicationId = "com.dessalines.thumbkey.custom"
         minSdk = 24
         targetSdk = 37
         versionCode = 190
@@ -53,11 +53,18 @@ android {
             }
         }
     }
+    signingConfigs {
+        create("custom") {
+            storeFile = rootProject.file("thumbkey-custom.jks")
+            storePassword = "thumbkey"
+            keyAlias = "thumbkey"
+            keyPassword = "thumbkey"
+        }
+    }
+
     buildTypes {
         release {
-            if (project.hasProperty("RELEASE_STORE_FILE")) {
-                signingConfig = signingConfigs.getByName("release")
-            }
+            signingConfig = signingConfigs.getByName("custom")
 
             isMinifyEnabled = true
             isShrinkResources = true
@@ -69,10 +76,6 @@ android {
                 // Includes a local, custom Proguard rules file
                 "proguard-rules.pro",
             )
-        }
-        debug {
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = " (DEBUG)"
         }
     }
 

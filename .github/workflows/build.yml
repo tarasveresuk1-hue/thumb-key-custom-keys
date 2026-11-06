@@ -18,11 +18,15 @@ jobs:
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
       - name: Build
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleRelease --no-daemon
       - name: Rename APK
-        run: cp app/build/outputs/apk/debug/*.apk thumb-key-custom-keys.apk
+        run: cp app/build/outputs/apk/release/*.apk thumb-key-custom.apk
+      - name: Move latest tag
+        run: |
+          git tag -f latest
+          git push -f origin latest
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: build-${{ github.run_number }}
-          name: Thumb-Key Custom Keys build ${{ github.run_number }}
-          files: thumb-key-custom-keys.apk
+          tag_name: latest
+          name: Thumb-Key Custom
+          files: thumb-key-custom.apk
